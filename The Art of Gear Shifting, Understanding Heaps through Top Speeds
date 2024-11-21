@@ -1,0 +1,96 @@
+#include <iostream>
+#include <vector>
+#include <algorithm> // For heap operations: push_heap
+#include <thread>    // For sleep when input an invalid keyword
+#include <chrono>    // For timing delays
+#include <limits>    // For input validation and give user a chance to try
+
+using namespace std;
+
+// Function to simulate a progress bar for gear shifting
+void displayProgressBar() {
+    cout << "[Shifting gears: ";
+    for (int i = 0; i < 10; ++i) {
+        cout << "=";
+        cout.flush();
+        this_thread::sleep_for(chrono::milliseconds(200)); // this where it simulates the delay of shifting
+    }
+    cout << "] Gear shifted!\n";
+}
+
+// Function to display the current heap (top speeds)
+void displayHeap(const vector<int> &heap) {
+    cout << "Top Speeds: ";
+    for (int speed : heap) {
+        cout << speed << " ";
+    }
+    cout << endl;
+}
+
+// Function to simulate gear shifting and maintain a Max heap
+void simulateGearShifting(const vector<int> &gearSpeeds) {
+    vector<int> maxHeap; // Max-Heap to store top speeds for all gears
+
+    cout << "\n=== Simulating Gear Shifting ===\n";
+    for (int i = 0; i < gearSpeeds.size(); ++i) {
+        int speed = gearSpeeds[i];
+        displayProgressBar(); // Simulate the gear shift animation
+        maxHeap.push_back(speed); // Add the current gear's speed
+        push_heap(maxHeap.begin(), maxHeap.end()); // Maintain Max heap property
+        cout << "Shifted to " << (i + 1) << ((i == 0) ? "st" : (i == 1) ? "nd" : (i == 2) ? "rd" : "th")
+             << " gear with speed: " << speed << " km/h\n";
+        displayHeap(maxHeap); // Display the current top speeds
+    }
+
+    // Final output: Top speed at each step
+    cout << "\nFinal Top Speeds in All Gears: ";
+    for (int speed : maxHeap) {
+        cout << speed << " ";
+    }
+    cout << endl;
+}
+
+int main() {
+    vector<int> gearSpeeds; // Vector to hold user input
+    int n;
+
+    // Ask the user for the number of gears
+    cout << "Enter the number of gears: ";
+    cin >> n;
+
+    // this is where it invalidates the input for number of gears
+    while (cin.fail() || n <= 0) {
+        cin.clear(); // Clear error state
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+        cout << "Ohh, you stalled the bike! Put it in neutral and try again.\n";
+        cout << "Enter the number of gears: ";
+        cin >> n;
+    }
+
+    // shows the prompt for the top speed of each gear
+    for (int i = 1; i <= n; ++i) {
+        int speed;
+        cout << "Enter the top speed of " << i
+             << ((i == 1) ? "st" : (i == 2) ? "nd" : (i == 3) ? "rd" : "th")
+             << " gear (in km/h): ";
+        cin >> speed;
+
+        // Validate input for gear speeds
+        while (cin.fail() || speed < 0) {
+            cin.clear(); // Clear error state
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+            cout << "Ohh, you stalled the bike! Put it in neutral and try again.\n";
+            cout << "Enter the top speed of " << i
+                 << ((i == 1) ? "st" : (i == 2) ? "nd" : (i == 3) ? "rd" : "th")
+                 << " gear (in km/h): ";
+            cin >> speed;
+        }
+
+        gearSpeeds.push_back(speed);
+    }
+
+    // Simulates the gear shifting process
+    simulateGearShifting(gearSpeeds);
+
+    return 0;
+}
